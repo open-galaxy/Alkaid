@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "vector": "cpp"
+    "vector": "cpp",
+    "memory": "cpp"
   },
   "cmake.configureOnOpen": false,
   "C_Cpp.errorSquiggles": "Disabled"

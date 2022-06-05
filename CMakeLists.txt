@@ -8,7 +8,6 @@ set(V8_ROOT ${CMAKE_CURRENT_LIST_DIR}/deps/v8)
 
 # 链接 V8 头文件
 include_directories(${V8_ROOT}/include)
-include_directories(${V8_ROOT})
 # 链接 V8 库文件
 link_directories(${V8_ROOT})
 link_libraries(v8_monolith)
