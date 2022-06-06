@@ -56,4 +56,4 @@ test/test_runner
 
 alkaid
 *.tar.gz
-deps
+deps/v8
