@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM --platform=linux/amd64 debian:buster-slim
 
 WORKDIR /build
 ENV V8_RELEASE 0.1.8
@@ -19,4 +19,4 @@ RUN curl -L -o v8headers-$V8_H_RELEASE.tar.gz https://raw.githubusercontent.com/
   && rm -f v8headers-$V8_H_RELEASE.tar \
   && rm -f v8lib-$V8_RELEASE.tar
 
-RUN cmake -DCMAKE_BUILD_TYPE=Debug . && make
+# RUN cmake . && make
