@@ -38,13 +38,6 @@ int Env::Run(Isolate* isolate) {
 
   Local<Context> context = Context::New(isolate);
   Context::Scope context_scope(context);
-  {
-    Local<String> source = String::NewFromUtf8(isolate, "'Hello' + ', World'", NewStringType::kNormal).ToLocalChecked();
-    Local<Script> script = Script::Compile(context, source).ToLocalChecked();
-    Local<Value> result = script->Run(context).ToLocalChecked();
-    String::Utf8Value utf8(isolate, result);
-    printf("%s\n", *utf8);
-  }
 
   return 0;
 }

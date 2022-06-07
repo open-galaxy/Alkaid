@@ -12,6 +12,8 @@ namespace alkaid {
 
 using v8::Isolate;
 using v8::Platform;
+using v8::Local;
+using v8::ObjectTemplate;
 
 class Env {
   public:
@@ -24,6 +26,7 @@ class Env {
     void ExitEnv(Isolate* isolate);
   private:
     std::unique_ptr<Platform> platform_;
+    void LoadBuiltin(Local<ObjectTemplate> target, Isolate* isolate);
 
 };
 
