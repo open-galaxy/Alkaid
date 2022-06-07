@@ -1,4 +1,5 @@
 #include "module.h"
+#include "internal.h"
 
 namespace alkaid {
 
@@ -10,12 +11,15 @@ Module::~Module() {
   isolate_ = nullptr;
 }
 
-void LoadBuiltin(Local<ObjectTemplate> global) {
-  global_ = global;
+void Module::Load(Local<ObjectTemplate> global) {
+  SetMethod(global, "addEventListener", Internal::addEventListener);
 }
 
-void SetMethod(const char* name, FunctionCallback callback)) {
-
+void Module::SetMethod(Local<ObjectTemplate> target, const char* name, FunctionCallback callback) {
+  target->Set(
+    String::NewFromUtf8(isolate_, name, NewStringType::kNormal).ToLocalChecked(),
+    FunctionTemplate::New(isolate_, callback)
+  );
 }
 
 }

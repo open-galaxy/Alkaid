@@ -1,4 +1,5 @@
 #include "env.h"
+#include "module.h"
 
 namespace alkaid {
 
@@ -36,7 +37,12 @@ int Env::Run(Isolate* isolate) {
   Isolate::Scope isolate_scope(isolate);
   HandleScope handle_scope(isolate);
 
-  Local<Context> context = Context::New(isolate);
+  Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
+
+  Module module(isolate);
+  module.Load(global);
+
+  Local<Context> context = Context::New(isolate, NULL, global);
   Context::Scope context_scope(context);
 
   return 0;

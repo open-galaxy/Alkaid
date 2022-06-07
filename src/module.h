@@ -11,18 +11,20 @@ using v8::Isolate;
 using v8::ObjectTemplate;
 using v8::Local;
 using v8::FunctionCallback;
+using v8::String;
+using v8::NewStringType;
+using v8::FunctionTemplate;
 
 class Module {
   private:
     Isolate* isolate_;
-    Local<ObjectTemplate> global_;
-    void SetMethod(const char* name, FunctionCallback callback));
+    void SetMethod(Local<ObjectTemplate> global, const char* name, FunctionCallback callback);
   
   public:
-    Module::Module(Isolate* isolate);
-    Module::~Module();
+    Module(Isolate* isolate);
+    ~Module();
 
-    void LoadBuiltin(Local<ObjectTemplate> global);
+    void Load(Local<ObjectTemplate> global);
 
 };
 
