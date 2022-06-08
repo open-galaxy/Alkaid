@@ -36,7 +36,7 @@ Isolate* Env::NewIsolate() {
   return isolate;
 }
 
-int Env::Run(Isolate* isolate, const char* filepath) {
+int Env::Run(Isolate* isolate, const char* filepath_str) {
   Locker locker(isolate);
   Isolate::Scope isolate_scope(isolate);
   HandleScope handle_scope(isolate);
@@ -47,7 +47,7 @@ int Env::Run(Isolate* isolate, const char* filepath) {
 
   Local<Context> context = Context::New(isolate, NULL, global);
 
-  return Compile(filepath, isolate, context);
+  return Compile(filepath_str, isolate, context);
 }
 
 int Env::Compile(const char* filepath_str, Isolate* isolate, Local<Context> context) {

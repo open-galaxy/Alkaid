@@ -24,12 +24,12 @@ class Env {
     ~Env();
 
     Isolate* NewIsolate();
-    int Run(Isolate* isolate, const char* filepath);
+    int Run(Isolate* isolate, const char* filepath_str);
     // TODO
     void ExitEnv(Isolate* isolate);
   private:
     std::unique_ptr<Platform> platform_;
-    int Compile(const char* filepath, Isolate* isolate, Local<Context> context);
+    int Compile(const char* filepath_str, Isolate* isolate, Local<Context> context);
     void PrintStackTrace(Isolate* isolate, const TryCatch& try_catch);
 };
 
