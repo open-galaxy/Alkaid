@@ -50,15 +50,17 @@ int Env::Run(Isolate* isolate, const char* filepath) {
   return Compile(filepath, isolate, context);
 }
 
-int Env::Compile(const char* filepath, Isolate* isolate, Local<Context> context) {
+int Env::Compile(const char* filepath_str, Isolate* isolate, Local<Context> context) {
   Context::Scope context_scope(context);
+  Local<String> filepath = String::NewFromUtf8(isolate, filepath_str, NewStringType::kNormal).ToLocalChecked();
 
   TryCatch try_catch(isolate);
-  const char* entry_source_str = fs::readFile(filepath, NULL);
+  const char* entry_source_str = fs::readFile(filepath_str, NULL);
   Local<String> entry_source = String::NewFromUtf8(isolate, entry_source_str, NewStringType::kNormal).ToLocalChecked();
 
   Local<Script> entry_script;
-  if (!Script::Compile(context, entry_source).ToLocal(&entry_script)) {
+  v8::ScriptOrigin entry_script_origin(isolate, filepath);
+  if (!Script::Compile(context, entry_source, &entry_script_origin).ToLocal(&entry_script)) {
     PrintStackTrace(isolate, try_catch);
     return -1;
   }
