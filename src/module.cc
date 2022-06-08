@@ -13,6 +13,7 @@ Module::~Module() {
 
 void Module::Load(Local<ObjectTemplate> global) {
   SetMethod(global, "addEventListener", Internal::addEventListener);
+  SetMethod(global, "print", Internal::print);
 }
 
 void Module::SetMethod(Local<ObjectTemplate> target, const char* name, FunctionCallback callback) {

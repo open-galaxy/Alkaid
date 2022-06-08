@@ -15,12 +15,19 @@ using v8::Value;
 using v8::Script;
 using v8::NewStringType;
 
+using namespace alkaid;
+
 int main(int argc, char** argv) {
-  alkaid::Env env(argv);
-  Isolate* isolate = env.NewIsolate();
+  Env env(argv);
 
-  int exit_code = env.Run(isolate);
+  if (argc > 1) {
+    Isolate* isolate = env.NewIsolate();
 
-  env.ExitEnv(isolate);
-  return exit_code;
+    int exit_code = env.Run(isolate, argv[1]);
+
+    env.ExitEnv(isolate);
+    return exit_code;
+  }
+
+  return 0;
 }

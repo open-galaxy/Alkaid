@@ -1,5 +1,6 @@
 #include "env.h"
 #include "module.h"
+#include "fs.h"
 
 namespace alkaid {
 
@@ -14,6 +15,9 @@ using v8::String;
 using v8::Value;
 using v8::Script;
 using v8::NewStringType;
+using v8::Message;
+using v8::StackTrace;
+using v8::StackFrame;
 
 Env::Env(char** argv) {
   platform_ = v8::platform::NewDefaultPlatform();
@@ -32,20 +36,85 @@ Isolate* Env::NewIsolate() {
   return isolate;
 }
 
-int Env::Run(Isolate* isolate) {
+int Env::Run(Isolate* isolate, const char* filepath) {
   Locker locker(isolate);
   Isolate::Scope isolate_scope(isolate);
   HandleScope handle_scope(isolate);
 
   Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
-
   Module module(isolate);
   module.Load(global);
 
   Local<Context> context = Context::New(isolate, NULL, global);
+
+  return Compile(filepath, isolate, context);
+}
+
+int Env::Compile(const char* filepath, Isolate* isolate, Local<Context> context) {
   Context::Scope context_scope(context);
 
+  TryCatch try_catch(isolate);
+  const char* entry_source_str = fs::readFile(filepath, NULL);
+  Local<String> entry_source = String::NewFromUtf8(isolate, entry_source_str, NewStringType::kNormal).ToLocalChecked();
+
+  Local<Script> entry_script;
+  if (!Script::Compile(context, entry_source).ToLocal(&entry_script)) {
+    PrintStackTrace(isolate, try_catch);
+    return -1;
+  }
+
+  Local<Value> result;
+  if (!entry_script->Run(context).ToLocal(&result)) {
+    PrintStackTrace(isolate, try_catch);
+    return -2;
+  }
+
   return 0;
+}
+
+void Env::PrintStackTrace(Isolate* isolate, const TryCatch& try_catch) {
+  HandleScope handleScope(isolate);
+
+  Local<Value> exception = try_catch.Exception();
+  Local<Message> message = try_catch.Message();
+  Local<StackTrace> stack = message->GetStackTrace();
+  String::Utf8Value ex(isolate, exception);
+  Local<Value> scriptName = message->GetScriptResourceName();
+  String::Utf8Value scriptname(isolate, scriptName);
+  Local<Context> context = isolate->GetCurrentContext();
+
+  int linenum = message->GetLineNumber(context).FromJust();
+  fprintf(stderr, "%s in %s on line %i\n", *ex, *scriptname, linenum);
+  if (stack.IsEmpty()) return;
+
+  for (int i = 0; i < stack->GetFrameCount(); i++) {
+    Local<StackFrame> stack_frame = stack->GetFrame(isolate, i);
+    Local<String> functionName = stack_frame->GetFunctionName();
+    Local<String> scriptName = stack_frame->GetScriptName();
+    String::Utf8Value fn_name_s(isolate, functionName);
+    String::Utf8Value script_name(isolate, scriptName);
+
+    const int line_number = stack_frame->GetLineNumber();
+    const int column = stack_frame->GetColumn();
+    if (stack_frame->IsEval()) {
+      if (stack_frame->GetScriptId() == Message::kNoScriptIdInfo) {
+        fprintf(stderr, "    at [eval]:%i:%i\n", line_number, column);
+      } else {
+        fprintf(stderr, "    at [eval] (%s:%i:%i)\n", *script_name,
+          line_number, column);
+      }
+      break;
+    }
+
+    if (fn_name_s.length() == 0) {
+      fprintf(stderr, "    at %s:%i:%i\n", *script_name, line_number, column);
+    } else {
+      fprintf(stderr, "    at %s (%s:%i:%i)\n", *fn_name_s, *script_name,
+        line_number, column);
+    }
+  }
+
+  fflush(stderr);
 }
 
 void Env::ExitEnv(Isolate* isolate) {

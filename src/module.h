@@ -18,7 +18,7 @@ using v8::FunctionTemplate;
 class Module {
   private:
     Isolate* isolate_;
-    void SetMethod(Local<ObjectTemplate> global, const char* name, FunctionCallback callback);
+    void SetMethod(Local<ObjectTemplate> target, const char* name, FunctionCallback callback);
   
   public:
     Module(Isolate* isolate);
