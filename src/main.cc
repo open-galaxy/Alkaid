@@ -18,7 +18,7 @@ using v8::NewStringType;
 using namespace alkaid;
 
 int main(int argc, char** argv) {
-  Env env(argv);
+  Env env(argc, argv);
 
   if (argc > 1) {
     Isolate* isolate = env.NewIsolate();

@@ -17,10 +17,17 @@ using v8::ObjectTemplate;
 using v8::Context;
 using v8::Script;
 using v8::TryCatch;
+using v8::Array;
+
+struct arguments {
+  int argc;
+  char** argv;
+};
+
 
 class Env {
   public:
-    Env(char** argv);
+    Env(int argc, char** argv);
     ~Env();
 
     Isolate* NewIsolate();
@@ -29,7 +36,8 @@ class Env {
     void ExitEnv(Isolate* isolate);
   private:
     std::unique_ptr<Platform> platform_;
-    int Compile(const char* filepath_str, Isolate* isolate, Local<Context> context);
+    arguments args_;
+    int ExecuteBootstrapper(const char* filepath_str, Isolate* isolate, Local<Context> context);
     void PrintStackTrace(Isolate* isolate, const TryCatch& try_catch);
 };
 

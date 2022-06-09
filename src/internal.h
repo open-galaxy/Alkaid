@@ -25,8 +25,6 @@ using namespace std;
 
 class Internal {
   public:
-    static void addEventListener(const FunctionCallbackInfo<Value> &args);
-    static void respondWithByEvent(const FunctionCallbackInfo<Value> &args);
     static void print(const FunctionCallbackInfo<Value> &args);
 };
 

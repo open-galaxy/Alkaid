@@ -2,8 +2,8 @@
 project(alkaid) 
 cmake_minimum_required(VERSION 3.2)
 
-# V8 高版本需要 C++14 以上
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread")
+# V8 高版本需要 C++17 以上
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 set(V8_ROOT ${CMAKE_CURRENT_LIST_DIR}/deps/v8)
 
 # 链接 V8 头文件

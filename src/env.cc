@@ -1,6 +1,8 @@
 #include "env.h"
-#include "module.h"
+#include "binding.h"
 #include "fs.h"
+#include "util.h"
+#include "process.h"
 
 namespace alkaid {
 
@@ -19,10 +21,13 @@ using v8::Message;
 using v8::StackTrace;
 using v8::StackFrame;
 
-Env::Env(char** argv) {
+Env::Env(int argc, char** argv) {
   platform_ = v8::platform::NewDefaultPlatform();
   V8::InitializePlatform(platform_.get());
   V8::Initialize();
+  V8::SetFlagsFromString(v8flags);
+
+  args_ = { argc, argv };
 }
 
 Isolate* Env::NewIsolate() {
@@ -37,25 +42,31 @@ Isolate* Env::NewIsolate() {
 }
 
 int Env::Run(Isolate* isolate, const char* filepath_str) {
-  Locker locker(isolate);
   Isolate::Scope isolate_scope(isolate);
   HandleScope handle_scope(isolate);
 
+  // 创建全局对象
   Local<ObjectTemplate> global = ObjectTemplate::New(isolate);
-  Module module(isolate);
-  module.Load(global);
 
+  // 注册内部模块
+  binding::RegisterBuiltinModules(isolate, global);
+
+  // 创建执行上下文环境
   Local<Context> context = Context::New(isolate, NULL, global);
+  Context::Scope context_scope(context);
+  
+  // 注册 process
+  process::Initialize(isolate, context, args_.argc, args_.argv);
 
-  return Compile(filepath_str, isolate, context);
+  // 执行入口文件
+  return ExecuteBootstrapper("lib/bootstrap.js", isolate, context);
 }
 
-int Env::Compile(const char* filepath_str, Isolate* isolate, Local<Context> context) {
-  Context::Scope context_scope(context);
+int Env::ExecuteBootstrapper(const char* filepath_str, Isolate* isolate, Local<Context> context) {
   Local<String> filepath = String::NewFromUtf8(isolate, filepath_str, NewStringType::kNormal).ToLocalChecked();
 
   TryCatch try_catch(isolate);
-  const char* entry_source_str = fs::readFile(filepath_str, NULL);
+  const char* entry_source_str = fs::ReadFile(filepath_str, NULL);
   Local<String> entry_source = String::NewFromUtf8(isolate, entry_source_str, NewStringType::kNormal).ToLocalChecked();
 
   Local<Script> entry_script;

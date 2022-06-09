@@ -7,7 +7,8 @@ ENV V8_H_RELEASE 0.1.7
 COPY CMakeLists.txt .
 COPY src ./src
 COPY deps ./deps
-COPY example ./example
+COPY examples ./examples
+COPY lib ./lib
 
 RUN apt update && apt upgrade -y && apt install -y git curl python lsb-release sudo cmake build-essential
 
