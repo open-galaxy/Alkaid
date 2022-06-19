@@ -17,11 +17,51 @@ Local<Array> ParseArgs(Isolate* isolate, Local<Context> context, int argc, char*
   return arguments;
 }
 
+const char* ToCString(const v8::String::Utf8Value& value) {
+  return *value ? *value : "<string conversion failed>";
+}
+
+void Print(const FunctionCallbackInfo<Value>& args) {
+  bool first = true;
+  for (int i = 0; i < args.Length(); i++) {
+    v8::HandleScope handle_scope(args.GetIsolate());
+    if (first) {
+      first = false;
+    } else {
+      printf(" ");
+    }
+    v8::String::Utf8Value str(args.GetIsolate(), args[i]);
+    const char* cstr = ToCString(str);
+    printf("%s", cstr);
+  }
+  printf("\n");
+  fflush(stdout);
+}
+
+void PrintError(const FunctionCallbackInfo<Value> &args) {
+  bool first = true;
+  printf("Error: ");
+  for (int i = 0; i < args.Length(); i++) {
+    v8::HandleScope handle_scope(args.GetIsolate());
+    if (first) {
+      first = false;
+    } else {
+      printf(" ");
+    }
+    v8::String::Utf8Value str(args.GetIsolate(), args[i]);
+    const char* cstr = ToCString(str);
+    printf("%s", cstr);
+  }
+  printf("\n");
+  fflush(stdout);
+}
+
 void Initialize(Isolate* isolate, Local<Context> context, int argc, char** argv) {
   Local<Object> process = Object::New(isolate);
 
-  process->Set(context, FIXED_ONE_BYTE_STRING(isolate, "argv"), ParseArgs(isolate, context, argc, argv))
-          .Check();
+  SetMethod(isolate, process, "stdout", Print);
+  SetMethod(isolate, process, "stderr", PrintError);
+  SetValue(isolate, process, "argv", ParseArgs(isolate, context, argc, argv));
 
   context->Global()
          ->Set(context, FIXED_ONE_BYTE_STRING(isolate, "process"), process)
