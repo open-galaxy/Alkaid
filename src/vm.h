@@ -19,10 +19,14 @@ using v8::MaybeLocal;
 using v8::Script;
 using v8::Object;
 using v8::ObjectTemplate;
+using v8::Function;
+using v8::Array;
 
 namespace vm {
 
 void RunScript(const FunctionCallbackInfo<Value> &args);
+void CompileFunction(const FunctionCallbackInfo<Value> &args);
+
 Local<ObjectTemplate> Initialize(Isolate* isolate);
 
 }

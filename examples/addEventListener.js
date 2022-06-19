@@ -1,0 +1,2 @@
+addEventListener('fetch', () => {});
+fetch('test');
