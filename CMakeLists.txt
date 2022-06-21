@@ -1,6 +1,6 @@
 #Alkaid
-project(alkaid) 
 cmake_minimum_required(VERSION 3.2)
+project(alkaid)
 
 # V8 高版本需要 C++17 以上
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
