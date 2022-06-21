@@ -3,6 +3,7 @@ FROM --platform=linux/amd64 debian:buster-slim
 WORKDIR /build
 ENV V8_RELEASE 0.1.8
 ENV V8_H_RELEASE 0.1.7
+ENV LLHTTP_V v6.0.6
 
 COPY CMakeLists.txt .
 COPY src ./src
@@ -21,4 +22,10 @@ RUN curl -L -o v8headers-$V8_H_RELEASE.tar.gz https://raw.githubusercontent.com/
   && rm -f v8headers-$V8_H_RELEASE.tar \
   && rm -f v8lib-$V8_RELEASE.tar
 
+WORKDIR /build/deps/llhttp
+RUN curl -L -o libllhttp-$LLHTTP_V.tar.gz https://raw.githubusercontent.com/open-galaxy/libllhttp/main/dist/libllhttp-$LLHTTP_V.tar.gz \
+  && tar zxf libllhttp-$LLHTTP_V.tar.gz \
+  && rm -f libllhttp-$LLHTTP_V.tar.gz
+
+WORKDIR /build
 RUN cmake . && make
